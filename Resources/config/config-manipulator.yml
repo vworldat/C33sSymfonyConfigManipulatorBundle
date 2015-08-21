@@ -1,0 +1,11 @@
+parameters:
+    c33s_symfony_config_manipulator.config_manipulator.class:   C33s\SymfonyConfigManipulatorBundle\Manipulator\ConfigManipulator
+    c33s_symfony_config_manipulator.environments:               [ '', 'prod', 'dev', 'test' ] 
+
+services:
+    c33s_symfony_config_manipulator.config_manipulator:
+        class: "%c33s_symfony_config_manipulator.config_manipulator.class%"
+        arguments:
+            - "%c33s_symfony_config_manipulator.environments%"
+            - "%kernel.root_dir%"
+            - "@logger"
