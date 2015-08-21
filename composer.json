@@ -15,7 +15,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "C33s\\SymfonyConfigManipulatorBundle\\": "/"
+            "C33s\\SymfonyConfigManipulatorBundle\\": ""
         }
     },
     "minimum-stability": "stable",
