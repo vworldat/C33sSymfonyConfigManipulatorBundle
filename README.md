@@ -100,6 +100,13 @@ Require [`c33s/symfony-config-manipulator-bundle`](https://packagist.org/package
 }
 ```
 
+or, if you are using ['composer-yaml'](https://packagist.org/packages/igorw/composer-yaml):
+
+```yml
+require:
+    c33s/symfony-config-manipulator-bundle:     '@stable'
+```
+
 Register the bundle in `app/AppKernel.php`:
 
 ```php
