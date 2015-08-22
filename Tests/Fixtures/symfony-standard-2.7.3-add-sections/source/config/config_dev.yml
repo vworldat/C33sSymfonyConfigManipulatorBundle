@@ -1,0 +1,7 @@
+imports:
+    - { resource: config.yml }
+    - { resource: config_dev/assetic.yml }
+    - { resource: config_dev/framework.yml }
+    - { resource: config_dev/monolog.yml }
+    - { resource: config_dev/swiftmailer.yml }
+    - { resource: config_dev/web_profiler.yml }

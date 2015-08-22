@@ -2,6 +2,7 @@
 
 namespace C33s\SymfonyConfigManipulatorBundle\Manipulator;
 
+use C33s\SymfonyConfigManipulatorBundle\Exception\ConfigManipulatorException;
 use C33s\SymfonyConfigManipulatorBundle\Exception\MissingModuleConfigException;
 use C33s\SymfonyConfigManipulatorBundle\Exception\ModuleExistsException;
 use Psr\Log\LoggerInterface;
@@ -77,7 +78,7 @@ class ConfigManipulator
      *
      * @return string
      */
-    protected function getBaseConfigFolder()
+    public function getBaseConfigFolder()
     {
         return $this->kernelRootDir.'/config/';
     }
@@ -94,7 +95,7 @@ class ConfigManipulator
      *
      * @return string
      */
-    protected function getConfigFile($environment)
+    public function getConfigFile($environment)
     {
         return $this->getBaseConfigFolder().rtrim('config_'.$environment, '_').'.yml';
     }
@@ -103,35 +104,17 @@ class ConfigManipulator
      * Get the name of the sub folder to place in app/config.
      * e.g.:
      *  * config
-     *  * config.dev
-     *  * config.prod
-     *  * config.test.
+     *  * config_dev
+     *  * config_prod
+     *  * config_test.
      *
      * @param string $environment
      *
      * @return string
      */
-    protected function getImporterFolderName($environment)
+    public function getImporterFolderName($environment)
     {
-        return rtrim('config.'.$environment, '.').'/';
-    }
-
-    /**
-     * Get the path to the module importer file for the given environment.
-     * e.g.:
-     *  * app/config/config/_importer.yml
-     *  * app/config/config.dev/_importer.yml
-     *  * app/config/config.prod/_importer.yml
-     *  * app/config/config.test/_importer.yml.
-     *
-     * @param string $environment
-     * @param string $filename    You may supply another importer file for custom use
-     *
-     * @return string
-     */
-    public function getImporterFile($environment, $filename = '_importer.yml')
-    {
-        return $this->getBaseConfigFolder().$this->getImporterFolderName($environment).$filename;
+        return rtrim('config_'.$environment, '_').'/';
     }
 
     /**
@@ -142,12 +125,19 @@ class ConfigManipulator
      *
      * @param string $module
      * @param string $environment
+     * @param bool   $includeBaseConfigFolder Set false to get relative path to app/config directory
      *
      * @return string
      */
-    public function getModuleFile($module, $environment = '')
+    public function getModuleFile($module, $environment = '', $includeBaseConfigFolder = true)
     {
-        return $this->getBaseConfigFolder().$this->getImporterFolderName($environment).$module.'.yml';
+        $path = $this->getImporterFolderName($environment).$module.'.yml';
+
+        if ($includeBaseConfigFolder) {
+            return $this->getBaseConfigFolder().$path;
+        }
+
+        return $path;
     }
 
     /**
@@ -186,6 +176,24 @@ class ConfigManipulator
     }
 
     /**
+     * Make the given path relative to the base config folder by stripping the folder name if it matches.
+     *
+     * @throws ConfigManipulatorException
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function stripBaseConfigFolderFromPath($path)
+    {
+        if (0 !== strpos($path, $this->getBaseConfigFolder())) {
+            throw new ConfigManipulatorException('Cannot strip base path from given path: '.$path);
+        }
+
+        return substr($path, strlen($this->getBaseConfigFolder()));
+    }
+
+    /**
      * Refresh config files for the given environment
      * e.g.:
      *  * ''    => splitting config.yml into config/{module}.yml sections
@@ -221,6 +229,10 @@ class ConfigManipulator
             }
         }
 
+        $newConfig = array(
+            'imports' => isset($modules['imports']) ? $modules['imports']['data']['imports'] : array(),
+        );
+
         $this->logger->debug('Found '.count($modules).' modules inside config file: "'.implode(', "', array_keys($modules)).'"');
 
         $this->logger->debug('Adding modules to separated config files');
@@ -229,20 +241,18 @@ class ConfigManipulator
                 continue;
             }
 
-            $this->addModuleConfig($module, $data['content'], $environment);
+            $this->addModuleConfig($module, $data['content'], $environment, false, false);
+
+            $filename = $this->getModuleFile($module, $environment, false);
+            if (!$this->getYamlManipulator()->dataContainsImportFile($newConfig, $filename)) {
+                $newConfig['imports'][] = array('resource' => $filename);
+            }
         }
 
-        $data = array(
-            'imports' => isset($modules['imports']) ? $modules['imports']['data']['imports'] : array(),
-        );
-
-        $filename = $folderName.'_importer.yml';
-        if (!$this->getYamlManipulator()->dataContainsImportFile($data, $filename)) {
-            $data['imports'][] = array('resource' => $filename);
-        }
+        $newConfig = $this->getYamlManipulator()->sortImports($newConfig, $folderName);
 
         $this->logger->debug("Re-writing $configFile");
-        file_put_contents($configFile, Yaml::dump($data));
+        file_put_contents($configFile, Yaml::dump($newConfig));
     }
 
     /**
@@ -277,8 +287,9 @@ class ConfigManipulator
      * @param string $yamlContent
      * @param string $environment
      * @param bool   $overwriteExisting If set to true, existing YAML files will be overwritten
+     * @param bool   $enable            Set to false to skip enabling the module. Only use this if you take care of enabling manually
      */
-    public function addModuleConfig($module, $yamlContent, $environment = '', $overwriteExisting = false)
+    public function addModuleConfig($module, $yamlContent, $environment = '', $overwriteExisting = false, $enable = true)
     {
         if (!$overwriteExisting && !$this->checkCanCreateModuleConfig($module, $environment)) {
             throw new ModuleExistsException("Cannot add config module '{$module}' for environment $environment because the target file already exists and contains YAML data. Please clean up manually and retry.");
@@ -314,7 +325,7 @@ class ConfigManipulator
             throw new MissingModuleConfigException("Cannot enable importer for {$module}.yml while file does not exist.");
         }
 
-        if ($this->getYamlManipulator()->addImportFilenameToImporterFile($this->getImporterFile($environment), $module.'.yml')) {
+        if ($this->getYamlManipulator()->addImportFilenameToImporterFile($this->getConfigFile($environment), $this->stripBaseConfigFolderFromPath($targetFile))) {
             $this->logger->info("Added module '$module' to '$environment' config importer");
         } else {
             $this->logger->debug("Module '$module' for '$environment' already exists in config importer");

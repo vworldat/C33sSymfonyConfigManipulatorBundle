@@ -43,7 +43,8 @@ class YamlManipulator
         $modules = array();
         $lastModule = null;
 
-        for ($i = 0; $i < count($lines); ++$i) {
+        $count = count($lines);
+        for ($i = 0; $i < $count; ++$i) {
             $line = rtrim($lines[$i]);
 
             if (empty($line)) {
@@ -138,7 +139,7 @@ class YamlManipulator
      */
     public function dataContainsImportFile($data, $filename)
     {
-        if (!is_array($data) || !isset($data['imports'])) {
+        if (!is_array($data) || !isset($data['imports']) || !is_array($data['imports'])) {
             return false;
         }
 
@@ -154,27 +155,43 @@ class YamlManipulator
     /**
      * Sort the "imports" key children of the given array by resource name.
      *
-     * @param array $data
+     * To make sure specific overrides do not break we only sort
+     * imports for paths starting with the given prefix (usually a folder name).
+     *
+     * @param array  $data
+     * @param string $prefix If given only references that start with the given prefix will be sorted
      *
      * @return array
      */
-    protected function sortImports(array $data)
+    public function sortImports(array $data, $prefix = '')
     {
         if (!isset($data['imports']) || !is_array($data['imports'])) {
             return $data;
         }
 
-        usort($data['imports'], function ($a, $b) {
-            if ($a['resource'] > $b['resource']) {
-                return 1;
-            } elseif ($a['resource'] < $b['resource']) {
-                return -1;
+        $importsBeforePrefixed = array();
+        $importsWithPrefix = array();
+        $importsAfterPrefixed = array();
+
+        foreach ($data['imports'] as $import) {
+            $resource = $import['resource'];
+            if (empty($prefix) || 0 === strpos($resource, $prefix)) {
+                $importsWithPrefix[] = $resource;
+            } elseif (count($importsWithPrefix)) {
+                $importsAfterPrefixed[] = $resource;
+            } else {
+                $importsBeforePrefixed[] = $resource;
             }
+        }
 
-            return 0;
-        });
+        sort($importsWithPrefix);
 
-        return $data;
+        $data = array_merge($importsBeforePrefixed, $importsWithPrefix, $importsAfterPrefixed);
+        $data = array_map(function ($resource) {
+            return array('resource' => $resource);
+        }, $data);
+
+        return array('imports' => $data);
     }
 
     /**

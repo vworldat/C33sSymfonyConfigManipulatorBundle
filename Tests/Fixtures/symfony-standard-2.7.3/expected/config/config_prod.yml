@@ -1,0 +1,5 @@
+imports:
+    - { resource: config.yml }
+    - { resource: config_prod/doctrine.yml }
+    - { resource: config_prod/framework.yml }
+    - { resource: config_prod/monolog.yml }

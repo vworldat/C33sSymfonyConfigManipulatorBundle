@@ -1,41 +1,40 @@
 Keep your Symfony2 YAML config files organized
 ==============================================
 
+[![Build Status](https://travis-ci.org/vworldat/C33sSymfonyConfigManipulatorBundle.svg)](https://travis-ci.org/vworldat/C33sSymfonyConfigManipulatorBundle)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/716c4317-aaf1-466c-90bf-48c3d98bf8c0/mini.png)](https://insight.sensiolabs.com/projects/716c4317-aaf1-466c-90bf-48c3d98bf8c0)
+
 Do you hate stuffing tons of config into a single `config.yml` file, losing track of all the sections inside the file? Then this is for you!
 
-This little bundle provides some general-purpose YAML and Symfony config manipulation tasks. The most important one
+This bundle provides some general-purpose YAML and Symfony config manipulation tasks. The most important one
 is to split the Symfony `app/config/config*.yml` files into separate sections, leading to a structure like this:
 
 ```
+# Symfony Standard Edition 2.7.3
+
 app/config
 ├── config
-│   ├── _importer.yml
 │   ├── assetic.yml
 │   ├── doctrine.yml
-│   ├── fos_user.yml
 │   ├── framework.yml
-│   ├── knp_markdown.yml
-│   ├── liip_imagine.yml
+│   ├── parameters.yml
 │   ├── swiftmailer.yml
 │   └── twig.yml
 │
-├── config.dev
-│   ├── _importer.yml
+├── config_dev
 │   ├── assetic.yml
 │   ├── framework.yml
 │   ├── monolog.yml
 │   ├── swiftmailer.yml
 │   └── web_profiler.yml
 │
-├── config.prod
-│   ├── _importer.yml
+├── config_prod
 │   ├── doctrine.yml
 │   ├── framework.yml
 │   └── monolog.yml
 │
-├── config.test
+├── config_test
 │   ├── framework.yml
-│   ├── _importer.yml
 │   ├── swiftmailer.yml
 │   └── web_profiler.yml
 │
@@ -44,7 +43,7 @@ app/config
 ├── config_test.yml
 ├── config.yml
 │
-│   # parameters.yml, routing.yml, security.yml etc are not touched by this.
+│   # parameters.yml, routing.yml, security.yml etc. will never be touched
 ├── parameters.yml
 ├── parameters.yml.dist
 ├── routing_dev.yml
@@ -60,7 +59,12 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: config/_importer.yml }
+    - { resource: config/assetic.yml }
+    - { resource: config/doctrine.yml }
+    - { resource: config/framework.yml }
+    - { resource: config/parameters.yml }
+    - { resource: config/swiftmailer.yml }
+    - { resource: config/twig.yml }
 ```
 
 `config_dev.yml` content:
@@ -68,7 +72,11 @@ imports:
 ```yml
 imports:
     - { resource: config.yml }
-    - { resource: config.dev/_importer.yml }
+    - { resource: config_dev/assetic.yml }
+    - { resource: config_dev/framework.yml }
+    - { resource: config_dev/monolog.yml }
+    - { resource: config_dev/swiftmailer.yml }
+    - { resource: config_dev/web_profiler.yml }
 ```
 
 ### Advantages:

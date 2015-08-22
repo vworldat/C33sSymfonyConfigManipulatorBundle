@@ -1,0 +1,3 @@
+# this is a newly added section that should be moved into a sub directory
+foo:
+    bar: baz

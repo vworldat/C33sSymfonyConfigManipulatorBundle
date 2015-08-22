@@ -1,0 +1,9 @@
+imports:
+    - { resource: config_dev.yml }
+    - { resource: config_test/framework.yml }
+    - { resource: config_test/swiftmailer.yml }
+    - { resource: config_test/web_profiler.yml }
+
+# this is the testing section of foo
+foo:
+    bar: bar
