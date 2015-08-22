@@ -306,7 +306,9 @@ class ConfigManipulator
         $this->logger->debug("Writing $targetFile");
         file_put_contents($targetFile, $yamlContent);
 
-        $this->enableModuleConfig($module, $environment);
+        if ($enable) {
+            $this->enableModuleConfig($module, $environment);
+        }
     }
 
     /**
