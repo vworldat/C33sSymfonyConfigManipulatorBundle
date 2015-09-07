@@ -139,6 +139,6 @@ Merge your configurations manually and you're good again.
 Safety
 ------
 
-The config splitter will never overwrite any existing config files as long as they contain parseable YAML. But as Murphy's law goes, there might be bugs where nobody expects them.
+The config splitter will never overwrite any existing module config files as long as they contain parseable YAML. But as Murphy's law goes, there might be bugs where nobody expects them.
 
 **Make sure to commit your configuration files to your git repository to keep your code safe!**
