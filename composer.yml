@@ -17,11 +17,12 @@ autoload:
 minimum-stability: stable
 
 require:
-    php:                    '>=5.4.0'
+    php:                        '>=5.4.0'
     
-    symfony/yaml:           '~2.2'
-    psr/log:                '~1.0'
+    symfony/framework-bundle:   '~2.6'
+    symfony/yaml:               '~2.2'
+    psr/log:                    '~1.0'
 
 require-dev:
-    phpunit/phpunit:        '~4.8'
-    fabpot/php-cs-fixer:    '~1.10'
+    phpunit/phpunit:            '~4.8'
+    fabpot/php-cs-fixer:        '~1.10'

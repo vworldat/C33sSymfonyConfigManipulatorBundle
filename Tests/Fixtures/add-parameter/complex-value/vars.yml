@@ -1,0 +1,6 @@
+name:               foo
+value:              
+    foo1: bar1
+    foo2: [ a, b, c ]
+preserveFormatting: true
+addComment:         ~

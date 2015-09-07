@@ -21,6 +21,7 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=5.4.0",
+        "symfony/framework-bundle": "~2.6",
         "symfony/yaml": "~2.2",
         "psr/log": "~1.0"
     },

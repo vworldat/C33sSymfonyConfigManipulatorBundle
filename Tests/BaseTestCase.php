@@ -28,6 +28,10 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
      */
     protected function cleanupTempDir()
     {
+        if (null === $this->tempDir) {
+            return;
+        }
+
         $files = Finder::create()
             ->in($this->tempDir)
             ->files()

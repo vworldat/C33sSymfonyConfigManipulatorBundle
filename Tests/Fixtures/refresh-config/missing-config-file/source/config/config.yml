@@ -1,0 +1,8 @@
+imports:
+    - { resource: parameters.yml }
+
+# this is a newly added section that should be moved into a sub directory
+# it will fail because there is already a non-empty config/twig.yml file
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"

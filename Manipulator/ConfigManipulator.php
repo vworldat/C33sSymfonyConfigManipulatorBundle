@@ -74,6 +74,16 @@ class ConfigManipulator
     }
 
     /**
+     * Inject specific YamlManipulator instance. Used mainly for testing.
+     *
+     * @param YamlManipulator
+     */
+    public function setYamlManipulator(YamlManipulator $yamlManipulator)
+    {
+        $this->yamlManipulator = $yamlManipulator;
+    }
+
+    /**
      * Get the base folder holding the main config files (app/config by default).
      *
      * @return string
@@ -225,7 +235,8 @@ class ConfigManipulator
             }
 
             if (!$this->checkCanCreateModuleConfig($module, $environment)) {
-                throw new \RuntimeException("Cannot move config module '{$module}' from file config/config_{$environment}.yml to file config/{$folderName}{$module}.yml because it already exists and contains YAML data. Please clean up manually and retry.");
+                $filename = $this->stripBaseConfigFolderFromPath($configFile);
+                throw new ModuleExistsException("Cannot move config module '{$module}' from file config/{$filename} to file config/{$folderName}{$module}.yml because it already exists and contains YAML data. Please clean up manually and retry.");
             }
         }
 
@@ -297,8 +308,8 @@ class ConfigManipulator
 
         $targetFile = $this->getModuleFile($module, $environment);
         if (!$overwriteExisting && file_exists($targetFile)) {
-            $this->logger->debug("File $targetFile exists, appending existing content");
-            $yamlContent .= "\n".file_get_contents($targetFile);
+            $this->logger->debug("File $targetFile exists, appending new content");
+            $yamlContent = file_get_contents($targetFile)."\n".$yamlContent;
         }
 
         $yamlContent = trim($yamlContent)."\n";

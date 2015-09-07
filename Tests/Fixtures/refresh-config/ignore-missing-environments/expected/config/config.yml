@@ -1,0 +1,7 @@
+imports:
+    - { resource: parameters.yml }
+
+# This will not be touched because we are checking for "dev" environment only
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"

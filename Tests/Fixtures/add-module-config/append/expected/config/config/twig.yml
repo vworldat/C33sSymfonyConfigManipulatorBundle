@@ -1,0 +1,8 @@
+# This configuration does not contain YAML, so it can be overwritten
+#twig:
+#    debug:            "%kernel.debug%"
+#    strict_variables: "%kernel.debug%"
+
+twig:
+    foo: bar
+    bar: baz

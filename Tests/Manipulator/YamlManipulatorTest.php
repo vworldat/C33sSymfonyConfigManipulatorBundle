@@ -4,9 +4,18 @@ namespace C33s\SymfonyConfigManipulatorBundle\Tests\Manipulator;
 
 use C33s\SymfonyConfigManipulatorBundle\Manipulator\YamlManipulator;
 use C33s\SymfonyConfigManipulatorBundle\Tests\BaseTestCase;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Yaml\Yaml;
 
 class YamlManipulatorTest extends BaseTestCase
 {
+    protected function tearDown()
+    {
+        $this->cleanupTempDir();
+        parent::tearDown();
+    }
+
     /**
      * @dataProvider provideSortImports
      *
@@ -52,6 +61,24 @@ class YamlManipulatorTest extends BaseTestCase
                 array('imports' => array(
                     array('resource' => 'c.yml'),
                     array('resource' => 'b.yml'),
+                    array('resource' => 'config/a.yml'),
+                    array('resource' => 'config/b.yml'),
+                    array('resource' => 'config/c.yml'),
+                )),
+            ),
+            // prefix and files before [2]
+            array(
+                array('imports' => array(
+                    array('resource' => 'e.yml'),
+                    array('resource' => 'f.yml'),
+                    array('resource' => 'config/c.yml'),
+                    array('resource' => 'config/a.yml'),
+                    array('resource' => 'config/b.yml'),
+                )),
+                'config/',
+                array('imports' => array(
+                    array('resource' => 'e.yml'),
+                    array('resource' => 'f.yml'),
                     array('resource' => 'config/a.yml'),
                     array('resource' => 'config/b.yml'),
                     array('resource' => 'config/c.yml'),
@@ -118,6 +145,18 @@ class YamlManipulatorTest extends BaseTestCase
                     array('resource' => 'config/c.yml'),
                     array('resource' => 'e.yml'),
                 )),
+            ),
+            // array without 'imports' key, keep data as is
+            array(
+                array('foo' => 'bar'),
+                '',
+                array('foo' => 'bar'),
+            ),
+            // array with 'imports' key but not array inside, keep data as is
+            array(
+                array('imports' => 'bar'),
+                '',
+                array('imports' => 'bar'),
             ),
         );
     }
@@ -202,20 +241,85 @@ class YamlManipulatorTest extends BaseTestCase
     {
         return array(
             array(
-                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/config.yml',
+                __DIR__.'/../Fixtures/refresh-config/symfony-standard-2.7.3/expected/config/config.yml',
                 'config/assetic.yml',
                 true,
             ),
             array(
-                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/config.yml',
+                __DIR__.'/../Fixtures/refresh-config/symfony-standard-2.7.3/expected/config/config.yml',
                 'config/does-not-exist.yml',
                 false,
             ),
             array(
-                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/does-not-exist.yml',
+                __DIR__.'/../Fixtures/refresh-config/symfony-standard-2.7.3/expected/config/does-not-exist.yml',
                 'config/assetic.yml',
                 false,
             ),
         );
+    }
+
+    public function testAddImportFilenameToImporterFileReturnsFalse()
+    {
+        $manipulator = new YamlManipulator();
+        $result = $manipulator->addImportFilenameToImporterFile(__DIR__.'/../Fixtures/refresh-config/symfony-standard-2.7.3/expected/config/config.yml', 'config/assetic.yml');
+        $this->assertFalse($result);
+    }
+
+    public function testAddImportFilenameWhenImportsSectionIsEmpty()
+    {
+        $this->setupTempDir();
+
+        $sourceDir = __DIR__.'/../Fixtures/add-import-filename_imports-empty';
+
+        $this->mirrorDirectory($sourceDir.'/source', $this->tempDir);
+
+        $manipulator = new YamlManipulator();
+        $manipulator->addImportFilenameToImporterFile($this->tempDir.'/config.yml', 'config/new_config.yml');
+
+        $this->assertDirectoriesAreEqual($sourceDir.'/expected', $this->tempDir);
+    }
+
+    /**
+     * @dataProvider provideAddParameterToFile
+     *
+     * @param string $filename
+     * @param string $name
+     * @param mixed  $value
+     * @param bool   $preserveFormatting
+     * @param string $addComment
+     */
+    public function testAddParameterToFile($sourceDir, $name, $value, $preserveFormatting, $addComment)
+    {
+        $this->setupTempDir();
+
+        $this->mirrorDirectory($sourceDir.'/source', $this->tempDir);
+        $manipulator = new YamlManipulator();
+        $manipulator->addParameterToFile($this->tempDir.'/parameters.yml', $name, $value, $preserveFormatting, $addComment);
+
+        $this->assertDirectoriesAreEqual($sourceDir.'/expected', $this->tempDir);
+    }
+
+    public function provideAddParameterToFile()
+    {
+        $sets = array();
+        $finder = Finder::create()
+            ->directories()
+            ->depth(0)
+            ->in(__DIR__.'/../Fixtures/add-parameter/')
+        ;
+
+        foreach ($finder as $dir) {
+            /* @var $dir SplFileInfo */
+            $vars = Yaml::parse(file_get_contents($dir->getRealPath().'/vars.yml'));
+            $sets[] = array(
+                $dir->getRealPath(),
+                $vars['name'],
+                $vars['value'],
+                $vars['preserveFormatting'],
+                $vars['addComment'],
+            );
+        }
+
+        return $sets;
     }
 }

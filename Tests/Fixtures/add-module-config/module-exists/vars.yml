@@ -1,0 +1,7 @@
+module:             twig
+yamlContent:        |
+    foo: bar
+    bar: baz
+overwriteExisting:  false
+enable:             true
+expectException:    true

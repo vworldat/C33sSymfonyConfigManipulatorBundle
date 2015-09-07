@@ -1,0 +1,6 @@
+name:               foo
+value:              bar
+preserveFormatting: true
+addComment:         |
+    This comment will be added above the new parameter
+    It is absolutely awesome!

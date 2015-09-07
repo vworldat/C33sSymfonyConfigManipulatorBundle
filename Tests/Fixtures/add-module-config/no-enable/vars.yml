@@ -1,0 +1,8 @@
+module:             new_module
+yamlContent:        |
+    new_module:
+        foo: bar
+        bar: baz
+overwriteExisting:  false
+enable:             false
+expectException:    false

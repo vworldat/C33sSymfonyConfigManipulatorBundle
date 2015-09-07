@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpdateConfigFilesCommand extends ContainerAwareCommand
+class RefreshConfigFilesCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
