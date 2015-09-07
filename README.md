@@ -3,6 +3,7 @@ Keep your Symfony2 YAML config files organized
 
 [![Build Status](https://travis-ci.org/vworldat/C33sSymfonyConfigManipulatorBundle.svg)](https://travis-ci.org/vworldat/C33sSymfonyConfigManipulatorBundle)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/716c4317-aaf1-466c-90bf-48c3d98bf8c0/mini.png)](https://insight.sensiolabs.com/projects/716c4317-aaf1-466c-90bf-48c3d98bf8c0)
+[![codecov.io](http://codecov.io/github/vworldat/C33sSymfonyConfigManipulatorBundle/coverage.svg?branch=master)](http://codecov.io/github/vworldat/C33sSymfonyConfigManipulatorBundle?branch=master)
 
 Do you hate stuffing tons of config into a single `config.yml` file, losing track of all the sections inside the file? Then this is for you!
 
