@@ -183,4 +183,39 @@ class YamlManipulatorTest extends BaseTestCase
             ),
         );
     }
+
+    /**
+     * @dataProvider provideImporterHasFilename
+     *
+     * @param string $importerFile
+     * @param string $filename
+     * @param bool   $expectedResult
+     */
+    public function testImporterHasFilename($importerFile, $filename, $expectedResult)
+    {
+        $manipulator = new YamlManipulator();
+        $result = $manipulator->importerFileHasFilename($importerFile, $filename);
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function provideImporterHasFilename()
+    {
+        return array(
+            array(
+                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/config.yml',
+                'config/assetic.yml',
+                true,
+            ),
+            array(
+                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/config.yml',
+                'config/does-not-exist.yml',
+                false,
+            ),
+            array(
+                __DIR__.'/../Fixtures/symfony-standard-2.7.3/expected/config/does-not-exist.yml',
+                'config/assetic.yml',
+                false,
+            ),
+        );
+    }
 }

@@ -144,7 +144,7 @@ class YamlManipulator
         }
 
         foreach ($data['imports'] as $value) {
-            if ($value['resource'] == $filename) {
+            if ($value['resource'] === $filename) {
                 return true;
             }
         }
