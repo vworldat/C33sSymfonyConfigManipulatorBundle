@@ -62,6 +62,17 @@ class ConfigManipulator
     }
 
     /**
+     * Get the configured Symfony environments that will be processed by the ConfigManipulator.
+     * e.g.: ['', 'prod', 'dev', 'test'].
+     *
+     * @return array
+     */
+    public function getEnvironments()
+    {
+        return $this->environments;
+    }
+
+    /**
      * @return YamlManipulator
      */
     public function getYamlManipulator()
@@ -178,7 +189,7 @@ class ConfigManipulator
         }
 
         $this->logger->info('Checking and initializing config files');
-        foreach ($this->environments as $environment) {
+        foreach ($this->getEnvironments() as $environment) {
             $this->initConfig($environment);
         }
 
