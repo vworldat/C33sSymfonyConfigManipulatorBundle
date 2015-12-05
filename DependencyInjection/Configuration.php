@@ -18,11 +18,18 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('c33s_symfony_config_manipulator');
+        $rootNode = $treeBuilder->root('c33s_symfony_config_manipulator');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->fixXmlConfig('environment')
+            ->children()
+                ->arrayNode('environments')
+                    ->prototype('scalar')
+                    ->end()
+                    ->defaultValue(array('', 'prod', 'dev', 'test'))
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }

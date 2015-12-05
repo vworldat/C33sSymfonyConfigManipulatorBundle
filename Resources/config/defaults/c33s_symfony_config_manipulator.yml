@@ -1,0 +1,3 @@
+c33s_symfony_config_manipulator:
+    # These environments will be checked for splittable configuration
+    environments:   [ '', 'prod', 'dev', 'test' ]
