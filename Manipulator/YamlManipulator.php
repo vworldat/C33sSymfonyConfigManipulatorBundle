@@ -189,7 +189,7 @@ class YamlManipulator
         sort($importsWithPrefix);
 
         $data = array_merge($importsBeforePrefixed, $importsWithPrefix, $importsAfterPrefixed);
-        $data = array_map(function ($resource) {
+        $data = array_map(function($resource) {
             return array('resource' => $resource);
         }, $data);
 
@@ -223,7 +223,7 @@ class YamlManipulator
 
             if (!empty($addComment)) {
                 $lines = explode("\n", trim($addComment));
-                $lines = array_map(function ($line) {
+                $lines = array_map(function($line) {
                     return '    # '.trim($line);
                 }, $lines);
 
